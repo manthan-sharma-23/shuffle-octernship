@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-import { Link, Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
+import {
+  Link,
+  Route,
+  Routes,
+  BrowserRouter,
+  useNavigate,
+} from "react-router-dom";
 import { CookiesProvider } from "react-cookie";
 import { removeCookies, useCookies } from "react-cookie";
 
@@ -30,7 +36,7 @@ import SettingsPage from "./views/SettingsPage";
 import KeepAlive from "./views/KeepAlive.jsx";
 
 import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from '@mui/material/CssBaseline';
+import CssBaseline from "@mui/material/CssBaseline";
 
 import UpdateAuthentication from "./views/UpdateAuthentication.jsx";
 import FrameworkWrapper from "./views/FrameworkWrapper.jsx";
@@ -39,10 +45,12 @@ import AlertTemplate from "./components/AlertTemplate";
 import { useAlert, positions, Provider } from "react-alert";
 import { isMobile } from "react-device-detect";
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import Drift from "react-driftjs";
+import { FormBuilder, Forms, UserForm } from "./views/Forms.jsx";
+import { UserFormAction } from "./views/UserFormAction.jsx";
 
 // Production - backend proxy forwarding in nginx
 var globalUrl = window.location.origin;
@@ -55,21 +63,23 @@ if (window.location.port === "3000") {
 
 // Development on Github Codespaces
 if (globalUrl.includes("app.github.dev")) {
-	//globalUrl = globalUrl.replace("3000", "5001")
-	globalUrl = "https://frikky-shuffle-5gvr4xx62w64-5001.preview.app.github.dev"
+  //globalUrl = globalUrl.replace("3000", "5001")
+  globalUrl = "https://frikky-shuffle-5gvr4xx62w64-5001.preview.app.github.dev";
 }
 //console.log("global: ", globalUrl)
 
 const App = (message, props) => {
-
   const [userdata, setUserData] = useState({});
-  const [notifications, setNotifications] = useState([])
-  const [cookies, setCookie, removeCookie] = useCookies([])
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [dataset, setDataset] = useState(false)
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [curpath, setCurpath] = useState(typeof window === "undefined" || window.location === undefined ? "" : window.location.pathname)
-
+  const [notifications, setNotifications] = useState([]);
+  const [cookies, setCookie, removeCookie] = useCookies([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [dataset, setDataset] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [curpath, setCurpath] = useState(
+    typeof window === "undefined" || window.location === undefined
+      ? ""
+      : window.location.pathname
+  );
 
   useEffect(() => {
     if (dataset === false) {
@@ -99,7 +109,7 @@ const App = (message, props) => {
       headers: {
         "Content-Type": "application/json",
       },
-			cors: "cors",
+      cors: "cors",
     })
       .then((response) => response.json())
       .then((responseJson) => {
@@ -163,421 +173,547 @@ const App = (message, props) => {
     position: positions.BOTTOM_LEFT,
   };
 
-	const handleFirstInteraction = (event) => {
-		console.log("First interaction: ", event)
-	}
+  const handleFirstInteraction = (event) => {
+    console.log("First interaction: ", event);
+  };
 
-  const includedData =
-      <div
-        style={{
-          backgroundColor: theme.palette.backgroundColor,
-          color: "rgba(255, 255, 255, 0.65)",
-          minHeight: "100vh",
-        }}
-      >
-        <ScrollToTop
-          getUserNotifications={getUserNotifications}
-					curpath={curpath}
-          setCurpath={setCurpath}
+  const includedData = (
+    <div
+      style={{
+        backgroundColor: theme.palette.backgroundColor,
+        color: "rgba(255, 255, 255, 0.65)",
+        minHeight: "100vh",
+      }}
+    >
+      <ScrollToTop
+        getUserNotifications={getUserNotifications}
+        curpath={curpath}
+        setCurpath={setCurpath}
+      />
+      {!isLoaded ? null : userdata.chat_disabled === true ? null : (
+        <Drift
+          appId="zfk9i7w3yizf"
+          attributes={{
+            name:
+              userdata.username === undefined || userdata.username === null
+                ? "OSS user"
+                : `OSS ${userdata.username}`,
+          }}
+          eventHandlers={[
+            {
+              event: "conversation:firstInteraction",
+              function: handleFirstInteraction,
+            },
+          ]}
         />
-				{!isLoaded ? null : 
-					userdata.chat_disabled === true ? null : 
-						<Drift 
-							appId="zfk9i7w3yizf" 
-							attributes={{
-								name: userdata.username === undefined || userdata.username === null ? "OSS user" : `OSS ${userdata.username}`,
-							}}
-							eventHandlers={[
-								{ 
-									event: "conversation:firstInteraction", 
-									function: handleFirstInteraction 
-								},
-							]}
-						/>
-				}
-        <Header
-          notifications={notifications}
-          setNotifications={setNotifications}
-          checkLogin={checkLogin}
-          cookies={cookies}
-          removeCookie={removeCookie}
-          isLoaded={isLoaded}
-          globalUrl={globalUrl}
-          setIsLoggedIn={setIsLoggedIn}
-          isLoggedIn={isLoggedIn}
-          userdata={userdata}
-          {...props}
-        />
-				{/*
+      )}
+      <Header
+        notifications={notifications}
+        setNotifications={setNotifications}
+        checkLogin={checkLogin}
+        cookies={cookies}
+        removeCookie={removeCookie}
+        isLoaded={isLoaded}
+        globalUrl={globalUrl}
+        setIsLoggedIn={setIsLoggedIn}
+        isLoggedIn={isLoggedIn}
+        userdata={userdata}
+        {...props}
+      />
+      {/*
         <div style={{ height: 60 }} />
 				*/}
-				<Routes>
-        	<Route
-        	  exact
-        	  path="/login"
-        	  element={
-        	    <LoginPage
-        	      isLoggedIn={isLoggedIn}
-        	      setIsLoggedIn={setIsLoggedIn}
-        	      register={true}
-        	      isLoaded={isLoaded}
-        	      globalUrl={globalUrl}
-        	      setCookie={setCookie}
-        	      cookies={cookies}
-        	      checkLogin={checkLogin}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/admin"
-        	  element={
-        	    <Admin
-        	      userdata={userdata}
-        	      isLoggedIn={isLoggedIn}
-        	      setIsLoggedIn={setIsLoggedIn}
-        	      register={true}
-        	      isLoaded={isLoaded}
-        	      globalUrl={globalUrl}
-        	      setCookie={setCookie}
-        	      cookies={cookies}
-        	      checkLogin={checkLogin}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-					<Route exact path="/search" element={<Search serverside={false} isLoaded={isLoaded} userdata={userdata} globalUrl={globalUrl} surfaceColor={theme.palette.surfaceColor} inputColor={theme.palette.inputColor} {...props} /> } />
-        	<Route
-        	  exact
-        	  path="/admin/:key"
-        	  element={
-        	    <Admin
-        	      isLoggedIn={isLoggedIn}
-        	      setIsLoggedIn={setIsLoggedIn}
-        	      register={true}
-        	      isLoaded={isLoaded}
-        	      globalUrl={globalUrl}
-        	      setCookie={setCookie}
-        	      cookies={cookies}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	{userdata.id !== undefined ? (
-        	  <Route
-        	    exact
-        	    path="/settings"
-        	    element={
-        	      <SettingsPage
-        	        isLoaded={isLoaded}
-        	        setUserData={setUserData}
-        	        userdata={userdata}
-        	        globalUrl={globalUrl}
-        	        {...props}
-        	      />
-        	    }
-        	  />
-        	) : null}
-        	<Route
-        	  exact
-        	  path="/AdminSetup"
-        	  element={
-        	    <AdminSetup
-        	      isLoaded={isLoaded}
-        	      userdata={userdata}
-        	      globalUrl={globalUrl}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/detectionframework"
-        	  element={
-        	    <FrameworkWrapper
-								selectedOption={"Draw"}
-								showOptions={false}
+      <Routes>
+        <Route
+          exact
+          path="/login"
+          element={
+            <LoginPage
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              checkLogin={checkLogin}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/admin"
+          element={
+            <Admin
+              userdata={userdata}
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              checkLogin={checkLogin}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/search"
+          element={
+            <Search
+              serverside={false}
+              isLoaded={isLoaded}
+              userdata={userdata}
+              globalUrl={globalUrl}
+              surfaceColor={theme.palette.surfaceColor}
+              inputColor={theme.palette.inputColor}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/admin/:key"
+          element={
+            <Admin
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
+        {userdata.id !== undefined ? (
+          <Route
+            exact
+            path="/settings"
+            element={
+              <SettingsPage
+                isLoaded={isLoaded}
+                setUserData={setUserData}
+                userdata={userdata}
+                globalUrl={globalUrl}
+                {...props}
+              />
+            }
+          />
+        ) : null}
+        <Route
+          exact
+          path="/AdminSetup"
+          element={
+            <AdminSetup
+              isLoaded={isLoaded}
+              userdata={userdata}
+              globalUrl={globalUrl}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/detectionframework"
+          element={
+            <FrameworkWrapper
+              selectedOption={"Draw"}
+              showOptions={false}
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              globalUrl={globalUrl}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/app"
+          element={
+            <FrameworkWrapper
+              selectedOption={"Draw"}
+              showOptions={false}
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              globalUrl={globalUrl}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/usecases"
+          element={
+            <Dashboard
+              userdata={userdata}
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              globalUrl={globalUrl}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/apps/new"
+          element={
+            <AppCreator
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              globalUrl={globalUrl}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/apps/authentication"
+          element={
+            <UpdateAuthentication
+              serverside={false}
+              userdata={userdata}
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/apps"
+          element={
+            <Apps
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              globalUrl={globalUrl}
+              userdata={userdata}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/apps/edit/:appid"
+          element={
+            <AppCreator
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              globalUrl={globalUrl}
+              {...props}
+            />
+          }
+        />
+        {/* forms */}
+        <Route
+          exact
+          path="/forms"
+          element={
+            <Forms
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/forms/build"
+          element={
+            <FormBuilder
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/forms/:form_id"
+          element={
+            <UserForm
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/forms/survey/usr/:form_id"
+          element={
+            <UserFormAction
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
 
-        	      isLoaded={isLoaded}
-        	      isLoggedIn={isLoggedIn}
-        	      globalUrl={globalUrl}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/app"
-        	  element={
-        	    <FrameworkWrapper
-								selectedOption={"Draw"}
-								showOptions={false}
-
-        	      isLoaded={isLoaded}
-        	      isLoggedIn={isLoggedIn}
-        	      globalUrl={globalUrl}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/usecases"
-        	  element={
-        	    <Dashboard
-				  userdata={userdata}
-        	      isLoaded={isLoaded}
-        	      isLoggedIn={isLoggedIn}
-        	      globalUrl={globalUrl}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/apps/new"
-        	  element={
-        	    <AppCreator
-        	      isLoaded={isLoaded}
-        	      isLoggedIn={isLoggedIn}
-        	      globalUrl={globalUrl}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-			<Route exact path="/apps/authentication" element={<UpdateAuthentication serverside={false} userdata={userdata} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} register={true} isLoaded={isLoaded} globalUrl={globalUrl} setCookie={setCookie} cookies={cookies} {...props} />} />
-        	<Route
-        	  exact
-        	  path="/apps"
-        	  element={
-				<Apps
-					isLoaded={isLoaded}
-					isLoggedIn={isLoggedIn}
-					globalUrl={globalUrl}
-					userdata={userdata}
-					{...props}
-				/>
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/apps/edit/:appid"
-        	  element={
-        	    <AppCreator
-        	      isLoaded={isLoaded}
-        	      isLoggedIn={isLoggedIn}
-        	      globalUrl={globalUrl}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/workflows"
-        	  element={
-        	    <Workflows
-				  checkLogin={checkLogin}
-        	      cookies={cookies}
-        	      removeCookie={removeCookie}
-        	      isLoaded={isLoaded}
-        	      isLoggedIn={isLoggedIn}
-        	      globalUrl={globalUrl}
-        	      cookies={cookies}
-        	      userdata={userdata}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/getting-started"
-        	  element={
-        	    <GettingStarted
-        	      cookies={cookies}
-        	      removeCookie={removeCookie}
-        	      isLoaded={isLoaded}
-        	      isLoggedIn={isLoggedIn}
-        	      globalUrl={globalUrl}
-        	      cookies={cookies}
-        	      userdata={userdata}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/workflows/:key"
-        	  element={
-        	    <AngularWorkflow
-								alert={alert}
-        	      userdata={userdata}
-        	      globalUrl={globalUrl}
-        	      isLoaded={isLoaded}
-        	      isLoggedIn={isLoggedIn}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-			<Route exact path="/workflows/:key/run" element={<RunWorkflow  userdata={userdata} globalUrl={globalUrl} isLoaded={isLoaded} isLoggedIn={isLoggedIn} surfaceColor={theme.palette.surfaceColor} inputColor={theme.palette.inputColor}{...props} /> } />
-			<Route exact path="/workflows/:key/execute" element={<RunWorkflow  userdata={userdata} globalUrl={globalUrl} isLoaded={isLoaded} isLoggedIn={isLoggedIn} surfaceColor={theme.palette.surfaceColor} inputColor={theme.palette.inputColor}{...props} /> } />
-        	<Route
-        	  exact
-        	  path="/docs/:key"
-        	  element={
-        	    <Docs
-        	      isMobile={isMobile}
-        	      isLoaded={isLoaded}
-        	      globalUrl={globalUrl}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/docs"
-        	  element={
-							//navigate(`/docs/about`)
-        	    <Docs
-        	      isMobile={isMobile}
-        	      isLoaded={isLoaded}
-        	      globalUrl={globalUrl}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/support"
-        	  element={
-							//navigate(`/docs/about`)
-        	    <Docs
-        	      isMobile={isMobile}
-        	      isLoaded={isLoaded}
-        	      globalUrl={globalUrl}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/set_authentication"
-        	  element={
-        	    <SetAuthentication
-        	      userdata={userdata}
-        	      isLoggedIn={isLoggedIn}
-        	      setIsLoggedIn={setIsLoggedIn}
-        	      register={true}
-        	      isLoaded={isLoaded}
-        	      globalUrl={globalUrl}
-        	      setCookie={setCookie}
-        	      cookies={cookies}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/login_sso"
-        	  element={
-        	    <SetAuthenticationSSO
-        	      userdata={userdata}
-        	      isLoggedIn={isLoggedIn}
-        	      setIsLoggedIn={setIsLoggedIn}
-        	      register={true}
-        	      isLoaded={isLoaded}
-        	      globalUrl={globalUrl}
-        	      setCookie={setCookie}
-        	      cookies={cookies}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/keepalive"
-        	  element={
-        	    <KeepAlive
-        	      isLoggedIn={isLoggedIn}
-        	      setIsLoggedIn={setIsLoggedIn}
-        	      register={true}
-        	      isLoaded={isLoaded}
-        	      globalUrl={globalUrl}
-        	      setCookie={setCookie}
-        	      cookies={cookies}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-        	<Route
-        	  exact
-        	  path="/dashboards"
-        	  element={
-        	    <DashboardView
-        	      isLoaded={isLoaded}
-        	      isLoggedIn={isLoggedIn}
-        	      globalUrl={globalUrl}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-			<Route
-				exact
-				path="/welcome"
-				element={
-					<Welcome
-						cookies={cookies}
-						removeCookie={removeCookie}
-						isLoaded={isLoaded}
-						isLoggedIn={isLoggedIn}
-						globalUrl={globalUrl}
-						cookies={cookies}
-						userdata={userdata}
-				  		checkLogin={checkLogin}
-						{...props}
-					/>
-				}
-			/>
-        	<Route
-        	  exact
-        	  path="/"
-        	  element={
-        	    <LoginPage
-        	      isLoggedIn={isLoggedIn}
-        	      setIsLoggedIn={setIsLoggedIn}
-        	      register={true}
-        	      isLoaded={isLoaded}
-        	      globalUrl={globalUrl}
-        	      setCookie={setCookie}
-        	      cookies={cookies}
-        	      {...props}
-        	    />
-        	  }
-        	/>
-				</Routes>
-      </div>
+        <Route
+          exact
+          path="/workflows"
+          element={
+            <Workflows
+              checkLogin={checkLogin}
+              cookies={cookies}
+              removeCookie={removeCookie}
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              globalUrl={globalUrl}
+              cookies={cookies}
+              userdata={userdata}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/getting-started"
+          element={
+            <GettingStarted
+              cookies={cookies}
+              removeCookie={removeCookie}
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              globalUrl={globalUrl}
+              cookies={cookies}
+              userdata={userdata}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/workflows/:key"
+          element={
+            <AngularWorkflow
+              alert={alert}
+              userdata={userdata}
+              globalUrl={globalUrl}
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/workflows/:key/run"
+          element={
+            <RunWorkflow
+              userdata={userdata}
+              globalUrl={globalUrl}
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              surfaceColor={theme.palette.surfaceColor}
+              inputColor={theme.palette.inputColor}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/workflows/:key/execute"
+          element={
+            <RunWorkflow
+              userdata={userdata}
+              globalUrl={globalUrl}
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              surfaceColor={theme.palette.surfaceColor}
+              inputColor={theme.palette.inputColor}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/docs/:key"
+          element={
+            <Docs
+              isMobile={isMobile}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/docs"
+          element={
+            //navigate(`/docs/about`)
+            <Docs
+              isMobile={isMobile}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/support"
+          element={
+            //navigate(`/docs/about`)
+            <Docs
+              isMobile={isMobile}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/set_authentication"
+          element={
+            <SetAuthentication
+              userdata={userdata}
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/login_sso"
+          element={
+            <SetAuthenticationSSO
+              userdata={userdata}
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/keepalive"
+          element={
+            <KeepAlive
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/dashboards"
+          element={
+            <DashboardView
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              globalUrl={globalUrl}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/welcome"
+          element={
+            <Welcome
+              cookies={cookies}
+              removeCookie={removeCookie}
+              isLoaded={isLoaded}
+              isLoggedIn={isLoggedIn}
+              globalUrl={globalUrl}
+              cookies={cookies}
+              userdata={userdata}
+              checkLogin={checkLogin}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/"
+          element={
+            <LoginPage
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
+      </Routes>
+    </div>
+  );
 
   return (
     <ThemeProvider theme={theme}>
-	  <CssBaseline />
+      <CssBaseline />
       <CookiesProvider>
         <BrowserRouter>
           <Provider template={AlertTemplate} {...options}>
             {includedData}
           </Provider>
         </BrowserRouter>
-		<ToastContainer 
-			position="bottom-center"
-			autoClose={5000}
-			hideProgressBar={false}
-			newestOnTop={false}
-			closeOnClick
-			rtl={false}
-			pauseOnFocusLoss
-			draggable
-			pauseOnHover
-			theme="dark"
-		/>
+        <ToastContainer
+          position="bottom-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
       </CookiesProvider>
     </ThemeProvider>
   );
