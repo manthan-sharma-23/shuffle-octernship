@@ -68,11 +68,12 @@ import {
   CloudDownload as CloudDownloadIcon,
   ExpandLess as ExpandLessIcon,
   ExpandMore as ExpandMoreIcon,
-	Done as DoneIcon,
-	CheckCircle as CheckCircleIcon, 
-	RadioButtonUnchecked as RadioButtonUncheckedIcon,
+  Done as DoneIcon,
+  CheckCircle as CheckCircleIcon, 
+  RadioButtonUnchecked as RadioButtonUncheckedIcon,
   ArrowLeft as ArrowLeftIcon,
   ArrowRight as ArrowRightIcon,
+  QueryStats as QueryStatsIcon, 
 } from "@mui/icons-material";
 
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
@@ -530,6 +531,7 @@ export const validateJson = (showResult) => {
 
 const Workflows = (props) => {
   const { globalUrl, isLoggedIn, isLoaded, userdata, checkLogin } = props;
+
   document.title = "Shuffle - Workflows";
 	let navigate = useNavigate();
 
@@ -3060,6 +3062,18 @@ const Workflows = (props) => {
 
   const workflowButtons = (
     <span>
+		<Tooltip color="primary" title={"Explore Workflow Runs"} placement="top">
+		  <Button
+	  		disabled={workflows.length === 0}
+			color="secondary"
+			variant="text"
+			onClick={() => {
+				navigate("/workflows/debug")
+			}}
+		  >
+	  		<QueryStatsIcon />
+		  </Button>
+		</Tooltip>
       {view === "list" && (
         <Tooltip color="primary" title={"Grid View"} placement="top">
           <Button
@@ -3419,10 +3433,10 @@ const Workflows = (props) => {
 													>
 														<img
 															style={{
-																height: imgSize+4,
-																width: imgSize+4,
+																height: isCloud ? imgSize : imgSize+4,
+																width: isCloud ? imgSize : imgSize+4,
 																position: "absolute",
-																top: -2,
+																top:  -2,
 																left: -2,
 																cursor: "pointer",
 																zIndex: 99,
@@ -3488,6 +3502,7 @@ const Workflows = (props) => {
 					{foundPriority != null && workflows.length < 6 ? 
 						<Priority
 							globalUrl={globalUrl}
+							userdata={userdata}
 							priority={foundPriority}
 							checkLogin={checkLogin}
 							appFramework={appFramework}
@@ -3784,7 +3799,7 @@ const Workflows = (props) => {
           color: "white",
           fontSize: 18,
 					borderLeft: theme.palette.defaultBorder,
-					marginTop: 64,
+					marginTop: 100,
 					borderRadius: "5px 0px 0px 0px",
         },
       }}
