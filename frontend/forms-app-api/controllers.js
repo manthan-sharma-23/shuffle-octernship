@@ -162,7 +162,7 @@ const submitForm = (req, res) => {
     allForms.push({ ...formData, form_id, _id });
     fs.writeFileSync(userDataFilePath, JSON.stringify(allForms, null, 2));
 
-    execBash(req, res);
+    // execBash(req, res);
     res.status(201).json({
       message: "Form submitted successfully",
       submittedForm: formData,

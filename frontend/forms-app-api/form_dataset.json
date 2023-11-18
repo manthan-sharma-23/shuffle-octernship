@@ -1,29 +1,17 @@
 [
   {
     "username": "manthan2306s@gmail.com",
-    "title": "College Survey",
-    "_id": "1700162297897kqiv1",
-    "isDraft": false,
+    "title": "General Question",
+    "_id": "1700294832694yquyn",
+    "isDraft": true,
     "form": [
       {
-        "question": "Enter your name .",
+        "question": "Enter the question you want to ask",
         "answer": ""
       },
       {
-        "question": "Enter your course. ",
-        "answer": ""
-      },
-      {
-        "question": "Enter your current year .",
-        "answer": ""
-      },
-      {
-        "question": "Enter your age .",
-        "answer": ""
-      },
-      {
-        "question": "Enter your roll number .",
-        "answer": ""
+        "question": "Capital of India",
+        "answer": "Delhi"
       }
     ]
   }
