@@ -217,6 +217,10 @@ const AddFormCard = ({ title, id, color, isDraft }) => {
       });
   };
   const shareForm = () => {
+    if (isDraft) {
+      toast("The form is not live yet !");
+      return;
+    }
     const url = window.location.origin + "/forms/survey/usr/" + id;
     navigator.clipboard
       .writeText(url)
@@ -286,7 +290,7 @@ const AddFormCard = ({ title, id, color, isDraft }) => {
               cursor: "pointer",
               color: isDraft ? "#1A1A1A" : "#B7B8BA",
             }}
-            onClick={!isDraft ? shareForm : null}
+            onClick={() => shareForm()}
           />
           <Fa6.FaTrash
             className="fa-solid fa-trash"
@@ -300,11 +304,13 @@ const AddFormCard = ({ title, id, color, isDraft }) => {
 };
 
 export const FormBuilder = (props) => {
-  const navigate = useNavigate();
-  const [formTitle, setFormTitle] = useState("Form Title");
+  const [formDetails, setFormDetails] = useState({
+    title: "Form Title",
+    username: "",
+    form: [],
+  });
   const [addForm, setAddForm] = useState(false);
   const [user, setUser] = useState();
-  const [formDetails, setFormDetails] = useState([]);
 
   useEffect(() => {
     getUser();
@@ -321,14 +327,16 @@ export const FormBuilder = (props) => {
     })
       .then((response) => {
         if (response.status !== 200) {
-          // Ahh, this happens because they're not admin
-          // window.location.pathname = "/workflows"
           return;
         }
         return response.json();
       })
       .then((responseJson) => {
         setUser(responseJson[0]);
+        setFormDetails((prevFormDetails) => ({
+          ...prevFormDetails,
+          username: responseJson[0].username,
+        }));
       })
       .catch((error) => {
         toast(error.toString());
@@ -342,17 +350,13 @@ export const FormBuilder = (props) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        title: formTitle,
+        ...formDetails,
         isDraft,
-        username: user.username,
-        form: formDetails,
       }),
     })
       .then((res) => res.json())
       .then((data) => {
-        setTimeout(() => {
-          navigate("/forms");
-        }, 1500);
+        toast("Form created successfully");
       });
   };
 
@@ -394,9 +398,12 @@ export const FormBuilder = (props) => {
               width: "60vw",
               fontSize: "3rem",
             }}
-            value={formTitle}
+            value={formDetails.title}
             onChange={(e) => {
-              setFormTitle(e.target.value);
+              setFormDetails((prevFormDetails) => ({
+                ...prevFormDetails,
+                title: e.target.value,
+              }));
             }}
           />
           <div
@@ -430,7 +437,7 @@ export const FormBuilder = (props) => {
                 backgroundColor: "#1A1A1A",
               }}
             >
-              <i className="fa-solid fa-plus" />
+              <Fa.FaPlus />
             </span>
             <button
               style={{
@@ -473,7 +480,7 @@ export const FormBuilder = (props) => {
           }}
         >
           {formDetails !== null ? (
-            formDetails.map((section, index) => {
+            formDetails.form.map((section, index) => {
               return (
                 <QuestionCard
                   key={index}
@@ -513,15 +520,55 @@ export const FormBuilder = (props) => {
 
 const QuestionCard = ({ question, answer, setFormDetails, index }) => {
   const [editStatus, setEditStatus] = useState(false);
-  const removeElement = (indexToRemove) => {
+  const removeElement = () => {
     setFormDetails((prevFormDetails) => {
-      const updatedFormDetails = [
-        ...prevFormDetails.slice(0, indexToRemove),
-        ...prevFormDetails.slice(indexToRemove + 1),
-      ];
+      const updatedFormDetails = {
+        ...prevFormDetails,
+        form: [
+          ...prevFormDetails.form.slice(0, index),
+          ...prevFormDetails.form.slice(index + 1),
+        ],
+      };
       return updatedFormDetails;
     });
   };
+
+  const handleQuestionChange = (e) => {
+    setFormDetails((prevFormDetails) => {
+      const updatedFormDetails = {
+        ...prevFormDetails,
+        form: prevFormDetails.form.map((item, i) => {
+          if (i === index) {
+            return {
+              ...item,
+              question: e.target.value,
+            };
+          }
+          return item;
+        }),
+      };
+      return updatedFormDetails;
+    });
+  };
+
+  const handleAnswerChange = (e) => {
+    setFormDetails((prevFormDetails) => {
+      const updatedFormDetails = {
+        ...prevFormDetails,
+        form: prevFormDetails.form.map((item, i) => {
+          if (i === index) {
+            return {
+              ...item,
+              answer: e.target.value,
+            };
+          }
+          return item;
+        }),
+      };
+      return updatedFormDetails;
+    });
+  };
+
   if (editStatus) {
     return (
       <div
@@ -558,6 +605,7 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
               border: "1px solid gray",
             }}
             value={question}
+            onChange={(e) => handleQuestionChange(e)}
           />
 
           <input
@@ -571,6 +619,7 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
               border: "1px solid gray",
             }}
             value={answer}
+            onChange={(e) => handleAnswerChange(e)}
           />
         </div>
         <div
@@ -909,7 +958,10 @@ const FormEditor = ({ id }) => {
   const getForm = () => {
     fetch("http://localhost:3300/api/forms/" + id)
       .then((res) => res.json())
-      .then((data) => setFormDetails(data[0]));
+      .then((data) => {
+        console.log(data[0]);
+        setFormDetails(data[0]);
+      });
   };
 
   const createFormHandler = (isDraft) => {
@@ -922,7 +974,7 @@ const FormEditor = ({ id }) => {
     })
       .then((res) => res.json())
       .then((data) => {
-        toast(data.message);
+        toast("Form Updated Succesfully");
         navigate("/forms");
       });
   };
@@ -1008,7 +1060,7 @@ const FormEditor = ({ id }) => {
                 backgroundColor: "#1A1A1A",
               }}
             >
-              <i className="fa-solid fa-plus" />
+              <Fa.FaPlus />
             </span>
             <button
               style={{
@@ -1055,6 +1107,8 @@ const FormEditor = ({ id }) => {
               return (
                 <QuestionCard
                   key={index}
+                  index={index}
+                  setFormDetails={setFormDetails}
                   question={section.question}
                   answer={section.answer}
                 />
