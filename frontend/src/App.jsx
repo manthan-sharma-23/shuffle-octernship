@@ -45,7 +45,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import AlertTemplate from "./components/AlertTemplate";
 import { useAlert, positions, Provider } from "react-alert";
 import { isMobile } from "react-device-detect";
-import RuntimeDebugger from "./components/RuntimeDebugger.jsx"
+import RuntimeDebugger from "./components/RuntimeDebugger.jsx";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -434,22 +434,6 @@ const App = (message, props) => {
         />
         <Route
           exact
-          path="/forms/build"
-          element={
-            <FormBuilder
-              isLoggedIn={isLoggedIn}
-              setIsLoggedIn={setIsLoggedIn}
-              register={true}
-              isLoaded={isLoaded}
-              globalUrl={globalUrl}
-              setCookie={setCookie}
-              cookies={cookies}
-              {...props}
-            />
-          }
-        />
-        <Route
-          exact
           path="/forms/:form_id"
           element={
             <UserForm
@@ -514,8 +498,20 @@ const App = (message, props) => {
             />
           }
         />
-			<Route exact path="/debug" element={<RuntimeDebugger userdata={userdata} globalUrl={globalUrl} /> }  />
-			<Route exact path="/workflows/debug" element={<RuntimeDebugger userdata={userdata} globalUrl={globalUrl} /> }  />
+        <Route
+          exact
+          path="/debug"
+          element={
+            <RuntimeDebugger userdata={userdata} globalUrl={globalUrl} />
+          }
+        />
+        <Route
+          exact
+          path="/workflows/debug"
+          element={
+            <RuntimeDebugger userdata={userdata} globalUrl={globalUrl} />
+          }
+        />
         <Route
           exact
           path="/workflows/:key"

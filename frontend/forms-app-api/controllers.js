@@ -1,24 +1,9 @@
 const fs = require("fs");
 const path = require("path");
-const { exec } = require("child_process");
+const { format } = require("date-fns");
 
 const formDataFilePath = path.resolve(__dirname, "./form_dataset.json");
 const userDataFilePath = path.resolve(__dirname, "./user_response_set.json");
-
-//Run the shell script
-
-const execBash = (req, res) => {
-  const scriptPath = "./workFlow.sh";
-  exec(`bash ${scriptPath}`, (error, stdout, stderr) => {
-    if (error) {
-      console.log(`Error: ${error.message}`);
-    }
-    if (stderr) {
-      console.log(`Error: ${stderr}`);
-    }
-    console.log(`Output: ${stdout}`);
-  });
-};
 
 function generateId() {
   return Date.now() + Math.random().toString(36).substr(2, 5);
@@ -56,7 +41,7 @@ const getForm = (req, res) => {
   }
 };
 
-const addForm = (req, res) => {
+const createForm = (req, res) => {
   try {
     // Read the content of the JSON file
     const rawData = fs.readFileSync(formDataFilePath);
@@ -69,6 +54,9 @@ const addForm = (req, res) => {
     }
 
     const newFormId = generateId();
+    const createdAt = new Date(); // Get the current date and time
+
+    const formattedDate = format(createdAt, "yyyy-MM-dd HH:mm");
 
     const newForm = {
       username,
@@ -76,6 +64,7 @@ const addForm = (req, res) => {
       _id: newFormId,
       isDraft,
       form,
+      createdAt: formattedDate,
     };
 
     // Add the new form to the array
@@ -86,7 +75,7 @@ const addForm = (req, res) => {
 
     return res
       .status(201)
-      .json({ message: "Form added successfully", newForm });
+      .json({ message: "Form added successfully", id: newForm._id });
   } catch (error) {
     console.error("Error reading or updating the data file:", error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -175,7 +164,7 @@ const submitForm = (req, res) => {
 
 module.exports = {
   getUserForms,
-  addForm,
+  createForm,
   getForm,
   updateForm,
   submitForm,

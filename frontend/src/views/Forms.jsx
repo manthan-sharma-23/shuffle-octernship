@@ -9,6 +9,7 @@ import * as Fa from "react-icons/fa";
 export const Forms = (props) => {
   const navigate = useNavigate();
   const [userForm, setUserForm] = useState([]);
+  const [user, setUser] = useState("");
 
   useEffect(() => {
     getUser();
@@ -16,7 +17,26 @@ export const Forms = (props) => {
   }, []);
 
   const addFormHandler = () => {
-    navigate("/forms/build/");
+    // navigate("/forms/build/");
+    fetch("http://localhost:3300/api/forms/addform", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "Enter your title here",
+        username: user,
+        isDraft: true,
+        form: [],
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        navigate("/forms/" + data.id);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getUser = () => {
@@ -37,6 +57,7 @@ export const Forms = (props) => {
         return response.json();
       })
       .then((responseJson) => {
+        setUser(responseJson[0].username);
         fetch("http://localhost:3300/api/forms", {
           method: "GET",
           headers: { username: responseJson[0].username },
@@ -292,226 +313,7 @@ const AddFormCard = ({ title, id, color, isDraft }) => {
             }}
             onClick={() => shareForm()}
           />
-          <Fa6.FaTrash
-            className="fa-solid fa-trash"
-            style={{ cursor: "pointer" }}
-            onClick={deleteForm}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const FormBuilder = (props) => {
-  const [formDetails, setFormDetails] = useState({
-    title: "Form Title",
-    username: "",
-    form: [],
-  });
-  const [addForm, setAddForm] = useState(false);
-  const [user, setUser] = useState();
-
-  useEffect(() => {
-    getUser();
-  }, []);
-
-  const getUser = () => {
-    fetch(props.globalUrl + "/api/v1/getusers", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      credentials: "include",
-    })
-      .then((response) => {
-        if (response.status !== 200) {
-          return;
-        }
-        return response.json();
-      })
-      .then((responseJson) => {
-        setUser(responseJson[0]);
-        setFormDetails((prevFormDetails) => ({
-          ...prevFormDetails,
-          username: responseJson[0].username,
-        }));
-      })
-      .catch((error) => {
-        toast(error.toString());
-      });
-  };
-
-  const createFormHandler = (isDraft) => {
-    fetch("http://localhost:3300/api/forms/addform", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...formDetails,
-        isDraft,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        toast("Form created successfully");
-      });
-  };
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        width: "100vw",
-        height: "auto",
-      }}
-    >
-      <div
-        style={{
-          width: "65vw",
-          minHeight: "100vh",
-          border: ".4px solid #FF8444",
-          margin: "1rem 0",
-          backgroundColor: "#27292D",
-        }}
-      >
-        <div
-          style={{
-            height: "15vh",
-            borderBottom: "1px solid gray",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <input
-            style={{
-              paddingLeft: "1rem",
-              backgroundColor: "transparent",
-              border: "none",
-              focus: "none",
-              color: "white",
-              height: "100%",
-              width: "60vw",
-              fontSize: "3rem",
-            }}
-            value={formDetails.title}
-            onChange={(e) => {
-              setFormDetails((prevFormDetails) => ({
-                ...prevFormDetails,
-                title: e.target.value,
-              }));
-            }}
-          />
-          <div
-            style={{
-              padding: "1.2rem",
-              backgroundColor: "transparent",
-              focus: "none",
-              color: "white",
-              height: "100%",
-              width: "60vw",
-              fontSize: "3rem",
-              display: "flex",
-              justifyContent: "space-around",
-              alignItems: "center",
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              setAddForm(true);
-            }}
-          >
-            <span
-              style={{
-                border: "1px solid white",
-                width: "70px",
-                height: "70px",
-                padding: "10px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                color: "white",
-                backgroundColor: "#1A1A1A",
-              }}
-            >
-              <Fa.FaPlus />
-            </span>
-            <button
-              style={{
-                height: "70px",
-                width: "130px",
-                backgroundColor: "#1A1A1A",
-                fontSize: "1.2rem",
-                color: "white",
-                border: "1px solid white",
-                cursor: "pointer",
-              }}
-              onClick={() => createFormHandler(true)}
-            >
-              Save as Draft
-            </button>
-            <button
-              style={{
-                height: "70px",
-                width: "130px",
-                backgroundColor: "#1A1A1A",
-                fontSize: "1.2rem",
-                color: "white",
-                border: "1px solid white",
-                cursor: "pointer",
-              }}
-              onClick={() => createFormHandler(false)}
-            >
-              Create Form
-            </button>
-          </div>
-        </div>
-        <div
-          style={{
-            padding: "1rem",
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column",
-          }}
-        >
-          {formDetails !== null ? (
-            formDetails.form.map((section, index) => {
-              return (
-                <QuestionCard
-                  key={index}
-                  index={index}
-                  question={section.question}
-                  answer={section.answer}
-                  setFormDetails={setFormDetails}
-                />
-              );
-            })
-          ) : (
-            <></>
-          )}
-        </div>
-        <div
-          style={{
-            padding: "1rem",
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {addForm ? (
-            <FieldCardSelector
-              setAddForm={setAddForm}
-              setFormDetails={setFormDetails}
-            />
-          ) : (
-            <></>
-          )}
+          <Fa6.FaTrash style={{ cursor: "pointer" }} onClick={deleteForm} />
         </div>
       </div>
     </div>
@@ -573,8 +375,9 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
     return (
       <div
         style={{
+          borderRadius: "20px",
           display: "flex",
-          border: ".3px solid white",
+          border: ".3px solid #FFF8C1",
           backgroundColor: "#1A1A1A",
           width: "80%",
           height: "22vh",
@@ -602,7 +405,9 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
               width: "100%",
               height: "3rem",
               paddingLeft: ".4rem",
-              border: "1px solid gray",
+              border: "none",
+              outline: "none",
+              borderBottom: "2px solid gray",
             }}
             value={question}
             onChange={(e) => handleQuestionChange(e)}
@@ -616,7 +421,9 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
               width: "100%",
               height: "3rem",
               paddingLeft: ".4rem",
-              border: "1px solid gray",
+              border: "none",
+              borderBottom: "2px solid gray",
+              outline: "none",
             }}
             value={answer}
             onChange={(e) => handleAnswerChange(e)}
@@ -638,9 +445,12 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
               width: "2.4rem",
               height: "2.4rem",
               padding: "6px",
-              border: "1px solid white",
+              border: "1px solid green",
               marginBottom: ".5rem",
               cursor: "pointer",
+              color: "green",
+
+              borderRadius: "100%",
             }}
             onClick={() => {
               setEditStatus((e) => !e);
@@ -651,9 +461,12 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
               backgroundColor: "#1A1A1A",
               width: "2.4rem",
               height: "2.4rem",
-              padding: "6px",
-              border: "1px solid white",
+              padding: "7px",
+              border: "1px solid red",
               cursor: "pointer",
+              color: "red",
+
+              borderRadius: "100%",
             }}
             onClick={() => removeElement(index)}
           />
@@ -665,7 +478,7 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
     <div
       style={{
         display: "flex",
-        border: ".3px solid white",
+        border: ".2px solid #4885ED",
         backgroundColor: "#1A1A1A",
         width: "80%",
         height: "22vh",
@@ -673,6 +486,7 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
         justifyContent: "center",
         alignItems: "center",
         margin: ".6rem 0",
+        borderRadius: "20px",
       }}
     >
       <div
@@ -709,10 +523,12 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
             backgroundColor: "#1A1A1A",
             width: "2.4rem",
             height: "2.4rem",
-            padding: "6px",
-            border: "1px solid white",
+            padding: "7px",
+            border: "1px solid yellow",
             marginBottom: ".5rem",
             cursor: "pointer",
+            color: "yellow",
+            borderRadius: "100%",
           }}
           onClick={() => {
             setEditStatus((e) => !e);
@@ -723,186 +539,14 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
             backgroundColor: "#1A1A1A",
             width: "2.4rem",
             height: "2.4rem",
-            padding: "6px",
-            border: "1px solid white",
+            padding: "7px",
+            border: "1px solid red",
             cursor: "pointer",
+            color: "red",
+
+            borderRadius: "100%",
           }}
           onClick={() => removeElement(index)}
-        />
-      </div>
-    </div>
-  );
-};
-
-const FieldCardSelector = ({ setFormDetails, setAddForm }) => {
-  const [sections, setSections] = useState({
-    question: "Enter the question you want to ask",
-    answer: "",
-  });
-  const [defaultAnswerType, setDefaultAnswerType] = useState("Text");
-
-  const createQuestionHandler = (section) => {
-    setFormDetails((prevFormDetails) => [...prevFormDetails, section]);
-
-    setSections({
-      question: "Enter the question you want to ask",
-      answer: "",
-    });
-  };
-
-  const handleChange = (e, field) => {
-    setSections((prevSections) => ({
-      ...prevSections,
-      [field]: e.target.value,
-    }));
-  };
-
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: "auto",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div
-        style={{
-          border: ".4px solid white",
-          width: "80%",
-          height: "25vh",
-          display: "flex",
-          backgroundColor: "#1A1A1A",
-        }}
-      >
-        <div style={{ width: "60%", height: "100%" }}>
-          <div
-            style={{
-              display: "flex",
-              padding: "1rem 1rem",
-              flexDirection: "column",
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            <input
-              value={sections.question}
-              onChange={(e) => handleChange(e, "question")}
-              style={{
-                width: "80%",
-                height: "25%",
-                paddingLeft: ".2rem",
-                backgroundColor: "transparent",
-                border: "none",
-                borderBottom: "1px solid grey",
-                focus: "none",
-                color: "white",
-                fontSize: "1.5rem",
-              }}
-            />
-            <div
-              style={{
-                // border:"2px solid white",
-                width: "100%",
-                height: "75%",
-                display: "flex",
-                justifyContent: "start",
-                alignItems: "center",
-                padding: "1rem",
-              }}
-            >
-              {defaultAnswerType === "Text" ? (
-                <input
-                  style={{
-                    paddingLeft: ".2rem",
-                    backgroundColor: "transparent",
-                    border: "1px solid grey",
-                    focus: "none",
-                    color: "white",
-                    fontSize: "1.2rem",
-                    padding: "2.5px 6px",
-                  }}
-                  placeholder="Type the correct answer here"
-                  onChange={(e) => handleChange(e, "answer")}
-                />
-              ) : (
-                <></>
-              )}
-            </div>
-          </div>
-        </div>
-        <div
-          style={{
-            width: "40%",
-            height: "100%",
-            padding: "17px 10px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexDirection: "column",
-          }}
-        >
-          <select
-            style={{
-              width: "80%",
-              height: "2.5rem",
-              backgroundColor: "transparent",
-              color: "white",
-              padding: "0px 5px",
-              fontSize: "1.3rem",
-            }}
-            onChange={(e) => {
-              setDefaultAnswerType(e.target.value);
-            }}
-            value={defaultAnswerType}
-          >
-            <option value={"Text"}>Text</option>
-            <option value={"MCQ"}>MCQ</option>
-            <option value={"Multiple Correct"}>Multiple Correct</option>
-          </select>
-          <button
-            style={{
-              width: "55%",
-              height: "2.5rem",
-              backgroundColor: "#FF8444",
-              color: "white",
-              border: "1px solid black",
-              padding: "0px 5px",
-              fontSize: "1.15rem",
-              cursor: "pointer",
-              borderRadius: "20px",
-            }}
-            onClick={() => createQuestionHandler(sections)}
-          >
-            Create Question
-          </button>
-        </div>
-      </div>
-      <div
-        style={{
-          width: "5%",
-          height: "25vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "start",
-          alignItems: "start",
-          paddingLeft: ".5rem",
-        }}
-      >
-        <Fa6.FaTrash
-          style={{
-            backgroundColor: "#1A1A1A",
-            width: "2.4rem",
-            height: "2.4rem",
-            padding: "9px",
-            border: "1px solid white",
-            marginBottom: ".5rem",
-            cursor: "pointer",
-          }}
-          onClick={() => {
-            setAddForm(false);
-          }}
         />
       </div>
     </div>
@@ -991,8 +635,9 @@ const FormEditor = ({ id }) => {
       <div
         style={{
           width: "65vw",
+          borderRadius: "30px",
           minHeight: "100vh",
-          border: ".4px solid #FF8444",
+          border: ".4px solid #C51152",
           margin: "1rem 0",
 
           backgroundColor: "#27292D",
@@ -1016,6 +661,8 @@ const FormEditor = ({ id }) => {
               height: "100%",
               width: "60vw",
               fontSize: "3rem",
+              fontFamily: "'Montserrat', sans-serif",
+              outline: "none",
             }}
             onChange={(e) => {
               setFormDetails({
@@ -1058,6 +705,7 @@ const FormEditor = ({ id }) => {
                 alignItems: "center",
                 color: "white",
                 backgroundColor: "#1A1A1A",
+                borderRadius: "15px",
               }}
             >
               <Fa.FaPlus />
@@ -1133,6 +781,7 @@ const FormEditor = ({ id }) => {
             <FieldCard
               setFormDetails={setFormDetails}
               formDetails={formDetails}
+              setAddForm={setAddForm}
             />
           )}
         </div>
@@ -1140,7 +789,7 @@ const FormEditor = ({ id }) => {
     </div>
   );
 };
-const FieldCard = ({ setFormDetails, formDetails }) => {
+const FieldCard = ({ setFormDetails, formDetails, setAddForm }) => {
   const [sections, setSections] = useState({
     question: "Enter the question you want to ask",
     answer: "",
@@ -1165,6 +814,10 @@ const FieldCard = ({ setFormDetails, formDetails }) => {
     }));
   };
 
+  const handleDelete = () => {
+    setAddForm(false);
+  };
+
   return (
     <div
       style={{
@@ -1173,6 +826,7 @@ const FieldCard = ({ setFormDetails, formDetails }) => {
         height: "25vh",
         display: "flex",
         backgroundColor: "#1A1A1A",
+        borderRadius: "20px",
       }}
     >
       <div style={{ width: "60%", height: "100%" }}>
@@ -1198,6 +852,7 @@ const FieldCard = ({ setFormDetails, formDetails }) => {
               focus: "none",
               color: "white",
               fontSize: "1.5rem",
+              outline: "none",
             }}
           />
           <div
@@ -1260,13 +915,34 @@ const FieldCard = ({ setFormDetails, formDetails }) => {
           <option value={"MCQ"}>MCQ</option>
           <option value={"Multiple Correct"}>Multiple Correct</option>
         </select>
+        <div
+          style={{
+            width: "80%",
+            height: "3rem",
+            display: "flex",
+            justifyContent: "end",
+            alignItems: "center",
+          }}
+        >
+          <span
+            style={{
+              color: "red",
+              fontSize: "1.7rem",
+            }}
+          >
+            <Fa6.FaTrash
+              onClick={() => handleDelete()}
+              style={{ cursor: "pointer" }}
+            />
+          </span>
+        </div>
         <button
           style={{
             width: "55%",
             height: "2.5rem",
-            backgroundColor: "#FF8444",
+            backgroundColor: "transparent",
             color: "white",
-            border: "1px solid black",
+            border: "1px solid white",
             padding: "0px 5px",
             fontSize: "1.15rem",
             cursor: "pointer",
