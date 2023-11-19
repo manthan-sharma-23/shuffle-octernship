@@ -1,20 +1,13 @@
 [
   {
     "username": "manthan2306s@gmail.com",
-    "title": "College Survey",
-    "_id": "1700162297897kqiv1",
+    "title": "College Survey Form",
+    "_id": "17003912991087vlxg",
     "isDraft": false,
+    "createdAt": "2023-11-20 02:07",
     "form": [
       {
-        "question": "Enter your name .",
-        "answer": ""
-      },
-      {
-        "question": "Enter your course. ",
-        "answer": ""
-      },
-      {
-        "question": "Enter your current year .",
+        "question": "Enter your name.",
         "answer": ""
       },
       {
@@ -22,7 +15,11 @@
         "answer": ""
       },
       {
-        "question": "Enter your roll number .",
+        "question": "Enter your course name .",
+        "answer": ""
+      },
+      {
+        "question": "Fill Specialization .",
         "answer": ""
       }
     ]

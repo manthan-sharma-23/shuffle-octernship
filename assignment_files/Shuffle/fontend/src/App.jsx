@@ -14,6 +14,7 @@ import Workflows from "./views/Workflows";
 import GettingStarted from "./views/GettingStarted";
 import AngularWorkflow from "./views/AngularWorkflow.jsx";
 
+//import Header from "./components/NewHeader.jsx";
 import Header from "./components/Header.jsx";
 import theme from "./theme";
 import Apps from "./views/Apps";
@@ -44,12 +45,13 @@ import ScrollToTop from "./components/ScrollToTop";
 import AlertTemplate from "./components/AlertTemplate";
 import { useAlert, positions, Provider } from "react-alert";
 import { isMobile } from "react-device-detect";
+import RuntimeDebugger from "./components/RuntimeDebugger.jsx";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Drift from "react-driftjs";
-import { FormBuilder, Forms, UserForm } from "./views/Forms.jsx";
+import { FormBuilder, Forms, ResponsePage, UserForm } from "./views/Forms.jsx";
 import { UserFormAction } from "./views/UserFormAction.jsx";
 
 // Production - backend proxy forwarding in nginx
@@ -432,9 +434,9 @@ const App = (message, props) => {
         />
         <Route
           exact
-          path="/forms/build"
+          path="/forms/:form_id"
           element={
-            <FormBuilder
+            <UserForm
               isLoggedIn={isLoggedIn}
               setIsLoggedIn={setIsLoggedIn}
               register={true}
@@ -448,9 +450,9 @@ const App = (message, props) => {
         />
         <Route
           exact
-          path="/forms/:form_id"
+          path="/forms/response/:_id"
           element={
-            <UserForm
+            <ResponsePage
               isLoggedIn={isLoggedIn}
               setIsLoggedIn={setIsLoggedIn}
               register={true}
@@ -510,6 +512,20 @@ const App = (message, props) => {
               userdata={userdata}
               {...props}
             />
+          }
+        />
+        <Route
+          exact
+          path="/debug"
+          element={
+            <RuntimeDebugger userdata={userdata} globalUrl={globalUrl} />
+          }
+        />
+        <Route
+          exact
+          path="/workflows/debug"
+          element={
+            <RuntimeDebugger userdata={userdata} globalUrl={globalUrl} />
           }
         />
         <Route

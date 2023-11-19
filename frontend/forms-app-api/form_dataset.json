@@ -3,7 +3,8 @@
     "username": "manthan2306s@gmail.com",
     "title": "College Survey Form",
     "_id": "17003912991087vlxg",
-    "isDraft": true,
+    "isDraft": false,
+    "createdAt": "2023-11-20 02:07",
     "form": [
       {
         "question": "Enter your name.",
@@ -20,52 +21,7 @@
       {
         "question": "Fill Specialization .",
         "answer": ""
-      },
-      {
-        "question": "Enter your grades .",
-        "answer": ""
       }
     ]
-  },
-  {
-    "username": "manthan2306s@gmail.com",
-    "title": "Form Title",
-    "_id": "17003980688298oi69",
-    "isDraft": false,
-    "form": [
-      {
-        "question": "Enter the question you want to ask",
-        "answer": ""
-      }
-    ]
-  },
-  {
-    "username": "manthan2306s@gmail.com",
-    "title": "Diwali donation form",
-    "_id": "170041972859584dj6",
-    "isDraft": true,
-    "form": [
-      {
-        "question": "Amount you would like to donate",
-        "answer": ""
-      }
-    ],
-    "createdAt": "2023-11-20 00:18:48"
-  },
-  {
-    "username": "manthan2306s@gmail.com",
-    "title": "Enter your title here",
-    "_id": "1700421231152io041",
-    "isDraft": true,
-    "form": [],
-    "createdAt": "2023-11-20 00:43:51"
-  },
-  {
-    "username": "manthan2306s@gmail.com",
-    "title": "Enter your title here",
-    "_id": "1700421324226vtpwh",
-    "isDraft": true,
-    "form": [],
-    "createdAt": "2023-11-20 00:45"
   }
 ]

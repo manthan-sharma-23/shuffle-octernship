@@ -49,8 +49,6 @@ export const UserFormAction = (props) => {
   };
 
   const submitForm = () => {
-    const workflow_url =
-      "http://192.168.1.13:5001/api/v1/hooks/webhook_5a9cdf6c-d41d-44f2-a422-c8da0b76de53";
     fetch("http://localhost:3300/api/survey/submit/" + form_id, {
       method: "POST",
       headers: {
@@ -66,6 +64,36 @@ export const UserFormAction = (props) => {
         toast(data.message);
         // navigate("/forms");
       });
+
+    try {
+      fetch(
+        "http://localhost:5001/api/v1/hooks/webhook_a3133e13-75f5-40cc-b582-b3f0eecbba4a"
+      )
+        .then((response) => {
+          // Handle the response here
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // Handle the data here
+          console.log(data);
+        })
+        .catch((error) => {
+          // Handle errors here
+          console.error("Error fetching data:", error);
+        })
+        .finally(() => {
+          // Code to run regardless of success or failure
+          console.log(
+            "Fetch request completed, regardless of success or failure."
+          );
+        });
+    } catch (error) {
+      // This block will catch synchronous errors (e.g., syntax errors) outside the fetch block
+      console.error("Caught an error outside fetch block:", error);
+    }
   };
 
   return (

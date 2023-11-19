@@ -106,6 +106,32 @@ const deleteForm = (req, res) => {
   }
 };
 
+const getResponseOfId = (req, res) => {
+  try {
+    const { form_id } = req.params;
+
+    // Read responses from the file
+    fs.readFile(userDataFilePath, "utf8", (err, data) => {
+      if (err) {
+        console.error("Error reading file:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+
+      // Parse the JSON data
+      const responses = JSON.parse(data);
+
+      // Filter responses based on form_id
+      const formResponses = responses.filter(
+        (response) => response.form_id === form_id
+      );
+
+      return res.json(formResponses);
+    });
+  } catch (err) {
+    console.log(err);
+    res.json(err);
+  }
+};
 const updateForm = async (req, res) => {
   try {
     const { form_id } = req.params;
@@ -148,7 +174,10 @@ const submitForm = (req, res) => {
     const rawData = fs.readFileSync(userDataFilePath);
     const allForms = JSON.parse(rawData);
 
-    allForms.push({ ...formData, form_id, _id });
+    const createdAt = new Date();
+    const submittedAt = format(createdAt, "yyyy-MM-dd HH:mm");
+
+    allForms.push({ ...formData, submittedAt, form_id, _id });
     fs.writeFileSync(userDataFilePath, JSON.stringify(allForms, null, 2));
 
     // execBash(req, res);
@@ -169,4 +198,5 @@ module.exports = {
   updateForm,
   submitForm,
   deleteForm,
+  getResponseOfId,
 };

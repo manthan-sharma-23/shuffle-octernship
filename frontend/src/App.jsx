@@ -51,7 +51,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Drift from "react-driftjs";
-import { FormBuilder, Forms, UserForm } from "./views/Forms.jsx";
+import { FormBuilder, Forms, ResponsePage, UserForm } from "./views/Forms.jsx";
 import { UserFormAction } from "./views/UserFormAction.jsx";
 
 // Production - backend proxy forwarding in nginx
@@ -437,6 +437,22 @@ const App = (message, props) => {
           path="/forms/:form_id"
           element={
             <UserForm
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              register={true}
+              isLoaded={isLoaded}
+              globalUrl={globalUrl}
+              setCookie={setCookie}
+              cookies={cookies}
+              {...props}
+            />
+          }
+        />
+        <Route
+          exact
+          path="/forms/response/:_id"
+          element={
+            <ResponsePage
               isLoggedIn={isLoggedIn}
               setIsLoggedIn={setIsLoggedIn}
               register={true}

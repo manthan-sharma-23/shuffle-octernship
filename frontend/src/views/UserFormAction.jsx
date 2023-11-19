@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
+import { ApiUrl, WorkflowUrl, workFlowTrigger } from "../config";
 
 export const UserFormAction = (props) => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ export const UserFormAction = (props) => {
   };
 
   const getForm = () => {
-    fetch("http://localhost:3300/api/forms/" + form_id)
+    fetch(ApiUrl + "/api/forms/" + form_id)
       .then((res) => res.json())
       .then((data) => {
         setForm(data[0]);
@@ -49,7 +50,7 @@ export const UserFormAction = (props) => {
   };
 
   const submitForm = () => {
-    fetch("http://localhost:3300/api/survey/submit/" + form_id, {
+    fetch(ApiUrl + "/api/survey/submit/" + form_id, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -63,37 +64,9 @@ export const UserFormAction = (props) => {
       .then((data) => {
         toast(data.message);
         // navigate("/forms");
+        workFlowTrigger();
+        navigate("/");
       });
-
-    try {
-      fetch(
-        "http://localhost:5001/api/v1/hooks/webhook_a3133e13-75f5-40cc-b582-b3f0eecbba4a"
-      )
-        .then((response) => {
-          // Handle the response here
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          // Handle the data here
-          console.log(data);
-        })
-        .catch((error) => {
-          // Handle errors here
-          console.error("Error fetching data:", error);
-        })
-        .finally(() => {
-          // Code to run regardless of success or failure
-          console.log(
-            "Fetch request completed, regardless of success or failure."
-          );
-        });
-    } catch (error) {
-      // This block will catch synchronous errors (e.g., syntax errors) outside the fetch block
-      console.error("Caught an error outside fetch block:", error);
-    }
   };
 
   return (

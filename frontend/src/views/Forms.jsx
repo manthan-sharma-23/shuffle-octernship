@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import * as Fa6 from "react-icons/fa6";
 import * as Fa from "react-icons/fa";
+import { ApiUrl } from "../config";
 
 export const Forms = (props) => {
   const navigate = useNavigate();
@@ -13,12 +14,11 @@ export const Forms = (props) => {
 
   useEffect(() => {
     getUser();
-    // You can call the hydrateFormHandler here if you want to do something with users when it changes.
   }, []);
 
   const addFormHandler = () => {
     // navigate("/forms/build/");
-    fetch("http://localhost:3300/api/forms/addform", {
+    fetch(ApiUrl + "/api/forms/addform", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export const Forms = (props) => {
       })
       .then((responseJson) => {
         setUser(responseJson[0].username);
-        fetch("http://localhost:3300/api/forms", {
+        fetch(ApiUrl + "/api/forms", {
           method: "GET",
           headers: { username: responseJson[0].username },
         })
@@ -177,6 +177,7 @@ export const Forms = (props) => {
                       title={form.title}
                       id={form._id}
                       color={"#C51152"}
+                      date={form.createdAt}
                       isDraft={form.isDraft}
                     />
                   );
@@ -206,6 +207,7 @@ export const Forms = (props) => {
                     <AddFormCard
                       title={form.title}
                       id={form._id}
+                      date={form.createdAt}
                       color={"#4885ED"}
                       isDraft={form.isDraft}
                     />
@@ -222,13 +224,13 @@ export const Forms = (props) => {
   );
 };
 
-const AddFormCard = ({ title, id, color, isDraft }) => {
+const AddFormCard = ({ title, id, color, isDraft, date }) => {
   const navigate = useNavigate();
   const openForm = () => {
     navigate(`/forms/${id}`);
   };
   const deleteForm = () => {
-    fetch("http://localhost:3300/api/forms/delete/admin/" + id, {
+    fetch(ApiUrl + "/api/forms/delete/admin/" + id, {
       method: "DELETE",
     })
       .then((res) => res.json())
@@ -278,20 +280,24 @@ const AddFormCard = ({ title, id, color, isDraft }) => {
       >
         <p
           style={{
-            fontSize: "1.7rem",
+            fontSize: "1.4rem",
             width: "100%",
             height: "50%",
             color: "white",
             display: "flex",
+            flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
             paddingLeft: ".5rem",
             cursor: "pointer",
+            fontWeight: "bold",
           }}
           onClick={openForm}
         >
           {title}
+          <p style={{ fontSize: "1rem", color: "gray" }}>Created At: {date}</p>
         </p>
+
         <div
           style={{
             width: "100%",
@@ -600,16 +606,15 @@ const FormEditor = ({ id }) => {
   }, []);
 
   const getForm = () => {
-    fetch("http://localhost:3300/api/forms/" + id)
+    fetch(ApiUrl + "/api/forms/" + id)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data[0]);
         setFormDetails(data[0]);
       });
   };
 
   const createFormHandler = (isDraft) => {
-    fetch("http://localhost:3300/api/forms/updateform/" + id, {
+    fetch(ApiUrl + "/api/forms/updateform/" + id, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -626,15 +631,16 @@ const FormEditor = ({ id }) => {
     <div
       style={{
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "space-between",
         alignItems: "center",
         width: "100vw",
         height: "auto",
+        padding: "2rem",
       }}
     >
       <div
         style={{
-          width: "65vw",
+          width: "60vw",
           borderRadius: "30px",
           minHeight: "100vh",
           border: ".4px solid #C51152",
@@ -786,9 +792,80 @@ const FormEditor = ({ id }) => {
           )}
         </div>
       </div>
+      <div
+        style={{
+          width: "35vw",
+          height: "auto",
+        }}
+      >
+        <ResponsesDiv form_id={id} />
+      </div>
     </div>
   );
 };
+
+const ResponsesDiv = ({ form_id }) => {
+  const navigate = useNavigate();
+  const [responses, setResponses] = useState([]);
+  useEffect(() => {
+    getResponses();
+  }, []);
+  const getResponses = () => {
+    fetch(ApiUrl + "/api/survey/response/" + form_id)
+      .then((res) => res.json())
+      .then((data) => {
+        setResponses(data);
+      });
+  };
+
+  const clickHandler = (_id) => {
+    navigate("/forms/response/" + _id);
+  };
+
+  return (
+    <div
+      style={{
+        width: "35vw",
+        height: "100vh",
+        border: ".2px solid red",
+        borderRadius: "20px",
+        padding: "10px 20px",
+        overflow: "autohidden",
+      }}
+    >
+      <h1>Responses</h1>
+      <div style={{}}>
+        {responses.map((res, index) => (
+          <div
+            style={{
+              width: "100%",
+              backgroundColor: "#27292D",
+              height: "7rem",
+              padding: "1rem",
+              borderRadius: "20px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "start",
+              flexDirection: "column",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              clickHandler(res._id);
+            }}
+          >
+            <p style={{ width: "100%", height: "30%" }}>
+              username: {res.username}
+            </p>
+            <p style={{ width: "100%", height: "30%", fontWeight: "bold" }}>
+              Submitted At: {res.submittedAt}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const FieldCard = ({ setFormDetails, formDetails, setAddForm }) => {
   const [sections, setSections] = useState({
     question: "Enter the question you want to ask",
@@ -953,6 +1030,14 @@ const FieldCard = ({ setFormDetails, formDetails, setAddForm }) => {
           Create Question
         </button>
       </div>
+    </div>
+  );
+};
+
+export const ResponsePage = (props) => {
+  return (
+    <div style={{ width: "100vw", height: "auto" }}>
+      <div style={{ width: "60vw", height: "100vh" }}></div>
     </div>
   );
 };

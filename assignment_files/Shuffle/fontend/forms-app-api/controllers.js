@@ -1,24 +1,9 @@
 const fs = require("fs");
 const path = require("path");
-const { exec } = require("child_process");
+const { format } = require("date-fns");
 
 const formDataFilePath = path.resolve(__dirname, "./form_dataset.json");
 const userDataFilePath = path.resolve(__dirname, "./user_response_set.json");
-
-//Run the shell script
-
-const execBash = (req, res) => {
-  const scriptPath = "./workFlow.sh";
-  exec(`bash ${scriptPath}`, (error, stdout, stderr) => {
-    if (error) {
-      console.log(`Error: ${error.message}`);
-    }
-    if (stderr) {
-      console.log(`Error: ${stderr}`);
-    }
-    console.log(`Output: ${stdout}`);
-  });
-};
 
 function generateId() {
   return Date.now() + Math.random().toString(36).substr(2, 5);
@@ -56,7 +41,7 @@ const getForm = (req, res) => {
   }
 };
 
-const addForm = (req, res) => {
+const createForm = (req, res) => {
   try {
     // Read the content of the JSON file
     const rawData = fs.readFileSync(formDataFilePath);
@@ -69,6 +54,9 @@ const addForm = (req, res) => {
     }
 
     const newFormId = generateId();
+    const createdAt = new Date(); // Get the current date and time
+
+    const formattedDate = format(createdAt, "yyyy-MM-dd HH:mm");
 
     const newForm = {
       username,
@@ -76,6 +64,7 @@ const addForm = (req, res) => {
       _id: newFormId,
       isDraft,
       form,
+      createdAt: formattedDate,
     };
 
     // Add the new form to the array
@@ -86,7 +75,7 @@ const addForm = (req, res) => {
 
     return res
       .status(201)
-      .json({ message: "Form added successfully", newForm });
+      .json({ message: "Form added successfully", id: newForm._id });
   } catch (error) {
     console.error("Error reading or updating the data file:", error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -117,6 +106,32 @@ const deleteForm = (req, res) => {
   }
 };
 
+const getResponseOfId = (req, res) => {
+  try {
+    const { form_id } = req.params;
+
+    // Read responses from the file
+    fs.readFile(userDataFilePath, "utf8", (err, data) => {
+      if (err) {
+        console.error("Error reading file:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+
+      // Parse the JSON data
+      const responses = JSON.parse(data);
+
+      // Filter responses based on form_id
+      const formResponses = responses.filter(
+        (response) => response.form_id === form_id
+      );
+
+      return res.json(formResponses);
+    });
+  } catch (err) {
+    console.log(err);
+    res.json(err);
+  }
+};
 const updateForm = async (req, res) => {
   try {
     const { form_id } = req.params;
@@ -159,10 +174,13 @@ const submitForm = (req, res) => {
     const rawData = fs.readFileSync(userDataFilePath);
     const allForms = JSON.parse(rawData);
 
-    allForms.push({ ...formData, form_id, _id });
+    const createdAt = new Date();
+    const submittedAt = format(createdAt, "yyyy-MM-dd HH:mm");
+
+    allForms.push({ ...formData, submittedAt, form_id, _id });
     fs.writeFileSync(userDataFilePath, JSON.stringify(allForms, null, 2));
 
-    execBash(req, res);
+    // execBash(req, res);
     res.status(201).json({
       message: "Form submitted successfully",
       submittedForm: formData,
@@ -175,9 +193,10 @@ const submitForm = (req, res) => {
 
 module.exports = {
   getUserForms,
-  addForm,
+  createForm,
   getForm,
   updateForm,
   submitForm,
   deleteForm,
+  getResponseOfId,
 };
