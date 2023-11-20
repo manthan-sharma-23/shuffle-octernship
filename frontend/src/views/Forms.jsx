@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import * as Fa6 from "react-icons/fa6";
 import * as Fa from "react-icons/fa";
 import { ApiUrl } from "../config";
+import { Api } from "@mui/icons-material";
 
 export const Forms = (props) => {
   const navigate = useNavigate();
@@ -386,7 +387,7 @@ const QuestionCard = ({ question, answer, setFormDetails, index }) => {
           border: ".3px solid #FFF8C1",
           backgroundColor: "#1A1A1A",
           width: "80%",
-          height: "22vh",
+          minHeight: "22vh",
           padding: ".4rem 1.5rem",
           justifyContent: "center",
           alignItems: "center",
@@ -624,7 +625,7 @@ const FormEditor = ({ id }) => {
       .then((res) => res.json())
       .then((data) => {
         toast("Form Updated Succesfully");
-        navigate("/forms");
+        window.location = "/forms";
       });
   };
   return (
@@ -632,7 +633,7 @@ const FormEditor = ({ id }) => {
       style={{
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "center",
+        alignItems: "start",
         width: "100vw",
         height: "auto",
         padding: "2rem",
@@ -796,6 +797,7 @@ const FormEditor = ({ id }) => {
         style={{
           width: "35vw",
           height: "auto",
+          marginTop: "1rem",
         }}
       >
         <ResponsesDiv form_id={id} />
@@ -819,7 +821,7 @@ const ResponsesDiv = ({ form_id }) => {
   };
 
   const clickHandler = (_id) => {
-    navigate("/forms/response/" + _id);
+    window.location = "/forms/response/" + _id;
   };
 
   return (
@@ -828,9 +830,10 @@ const ResponsesDiv = ({ form_id }) => {
         width: "35vw",
         height: "100vh",
         border: ".2px solid red",
+
         borderRadius: "20px",
         padding: "10px 20px",
-        overflow: "autohidden",
+        overflow: "hidden",
       }}
     >
       <h1>Responses</h1>
@@ -848,6 +851,7 @@ const ResponsesDiv = ({ form_id }) => {
               alignItems: "start",
               flexDirection: "column",
               cursor: "pointer",
+              margin: "10px 0",
             }}
             onClick={() => {
               clickHandler(res._id);
@@ -985,6 +989,7 @@ const FieldCard = ({ setFormDetails, formDetails, setAddForm }) => {
           }}
           onChange={(e) => {
             setDefaultAnswerType(e.target.value);
+            handleChange(e, defaultAnswerType);
           }}
           value={defaultAnswerType}
         >
@@ -1035,9 +1040,52 @@ const FieldCard = ({ setFormDetails, formDetails, setAddForm }) => {
 };
 
 export const ResponsePage = (props) => {
+  const { _id } = useParams();
+  const [response, setResponse] = useState({
+    response: [],
+  });
+
+  useEffect(() => {
+    getResponse();
+  }, []);
+
+  const getResponse = () => {
+    fetch(ApiUrl + "/api/survey/" + _id)
+      .then((res) => res.json())
+      .then((data) => {
+        setResponse(data);
+      });
+  };
   return (
-    <div style={{ width: "100vw", height: "auto" }}>
-      <div style={{ width: "60vw", height: "100vh" }}></div>
+    <div
+      style={{
+        width: "100vw",
+        height: "auto",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "start",
+      }}
+    >
+      <div style={{ width: "60vw", height: "100vh" }}>
+        <h3>User: {response.username ? response.username : ""}</h3>
+        {response.response.map((res) => (
+          <div style={{ margin: " 20px 0" }}>
+            <div style={{ fontWeight: "bold" }}>{res.question}</div>
+            <div>{res.answer}</div>
+          </div>
+        ))}
+        <p
+          style={{
+            display: "flex",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <h4>Submitted At</h4>
+          <p style={{ margin: "0 20px" }}>{response.submittedAt}</p>
+        </p>
+      </div>
     </div>
   );
 };

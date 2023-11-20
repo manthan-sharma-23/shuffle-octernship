@@ -191,6 +191,21 @@ const submitForm = (req, res) => {
   }
 };
 
+const getResponse = (req, res) => {
+  try {
+    const { response_id } = req.params;
+
+    const rawData = fs.readFileSync(userDataFilePath);
+    const allForms = JSON.parse(rawData);
+
+    const form = allForms.filter((form) => form._id === response_id);
+    return res.status(200).json(form[0]);
+  } catch (error) {
+    console.error("Error reading or parsing the data file:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   getUserForms,
   createForm,
@@ -199,4 +214,5 @@ module.exports = {
   submitForm,
   deleteForm,
   getResponseOfId,
+  getResponse,
 };

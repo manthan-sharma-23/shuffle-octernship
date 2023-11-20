@@ -7,18 +7,23 @@
     "createdAt": "2023-11-20 02:07",
     "form": [
       {
+        "type": "Text",
         "question": "Enter your name.",
         "answer": ""
       },
       {
+        "type": "Text",
         "question": "Enter your age .",
         "answer": ""
       },
       {
+        "type": "MCQ",
         "question": "Enter your course name .",
+        "options":[],
         "answer": ""
       },
       {
+        "type": "Text",
         "question": "Fill Specialization .",
         "answer": ""
       }

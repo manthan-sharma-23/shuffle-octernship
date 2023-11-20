@@ -4,30 +4,6 @@
     "response": [
       {
         "question": "Enter your name.",
-        "answer": "Sawraj Bansal"
-      },
-      {
-        "question": "Enter your age .",
-        "answer": "19"
-      },
-      {
-        "question": "Enter your course name .",
-        "answer": "Btech."
-      },
-      {
-        "question": "Fill Specialization .",
-        "answer": "ENE"
-      }
-    ],
-    "submittedAt": "2023-11-20 03:15",
-    "form_id": "17003912991087vlxg",
-    "_id": "1700430349361vbfh2"
-  },
-  {
-    "username": "manthan2306s@gmail.com",
-    "response": [
-      {
-        "question": "Enter your name.",
         "answer": "Manthan Sharma"
       },
       {
@@ -40,18 +16,11 @@
       },
       {
         "question": "Fill Specialization .",
-        "answer": "PIE"
+        "answer": "PIe"
       }
     ],
-    "submittedAt": "2023-11-20 04:22",
+    "submittedAt": "2023-11-20 16:40",
     "form_id": "17003912991087vlxg",
-    "_id": "1700434376838b80s7"
-  },
-  {
-    "username": "manthan2306s@gmail.com",
-    "response": [],
-    "submittedAt": "2023-11-20 04:24",
-    "form_id": "17003912991087vlxg",
-    "_id": "1700434443727lgv4b"
+    "_id": "1700478633312xdku9"
   }
 ]
