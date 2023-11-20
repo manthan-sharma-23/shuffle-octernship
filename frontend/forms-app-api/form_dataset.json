@@ -19,7 +19,7 @@
       {
         "type": "MCQ",
         "question": "Enter your course name .",
-        "options":[],
+        "options": [],
         "answer": ""
       },
       {
@@ -28,5 +28,30 @@
         "answer": ""
       }
     ]
+  },
+  {
+    "username": "manthan2306s@gmail.com",
+    "title": "Enter your title here",
+    "_id": "1700479276467s47aj",
+    "isDraft": true,
+    "form": [],
+    "createdAt": "2023-11-20 16:51"
+  },
+  {
+    "username": "manthan2306s@gmail.com",
+    "title": "General Survey Form",
+    "_id": "1700479346286it38n",
+    "isDraft": false,
+    "form": [
+      {
+        "question": "Enter your age. ",
+        "answer": ""
+      },
+      {
+        "question": "Enter your name .",
+        "answer": ""
+      }
+    ],
+    "createdAt": "2023-11-20 16:52"
   }
 ]
